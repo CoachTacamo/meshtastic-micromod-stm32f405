@@ -365,6 +365,9 @@ void fsInit()
     preFSBegin();
     if (!FSBegin()) {
         LOG_ERROR("Filesystem mount failed");
+#ifdef ARCH_STM32F4
+        abort();
+#endif
         // assert(0); This auto-formats the partition, so no need to fail here.
     }
 #if defined(ARCH_ESP32)

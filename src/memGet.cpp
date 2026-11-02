@@ -10,7 +10,8 @@
 #include "memGet.h"
 #include "configuration.h"
 
-#ifdef ARCH_STM32WL
+#if defined(ARCH_STM32WL) || defined(ARCH_STM32F4)
+#include <unistd.h>
 #include <malloc.h>
 #endif
 
@@ -28,6 +29,11 @@ uint32_t MemGet::getFreeHeap()
     return dbgHeapFree();
 #elif defined(ARCH_RP2040)
     return rp2040.getFreeHeap();
+#elif defined(ARCH_STM32F4)
+    const uintptr_t stack = __get_MSP();
+    const uintptr_t heap = reinterpret_cast<uintptr_t>(sbrk(0));
+    struct mallinfo m = mallinfo();
+    return (stack > heap + 16384 ? stack - heap - 16384 : 0) + m.fordblks;
 #elif defined(ARCH_STM32WL)
     struct mallinfo m = mallinfo();
     return m.fordblks; // Total free space (bytes)
@@ -49,6 +55,9 @@ uint32_t MemGet::getHeapSize()
     return dbgHeapTotal();
 #elif defined(ARCH_RP2040)
     return rp2040.getTotalHeap();
+#elif defined(ARCH_STM32F4)
+    extern char _end;
+    return 0x20020000UL - reinterpret_cast<uintptr_t>(&_end) - 16384;
 #elif defined(ARCH_STM32WL)
     struct mallinfo m = mallinfo();
     return m.arena; // Non-mmapped space allocated (bytes)

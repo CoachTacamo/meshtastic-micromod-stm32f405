@@ -783,7 +783,7 @@ void Power::reboot()
     }
     LOG_DEBUG("final reboot!");
     ::reboot();
-#elif defined(ARCH_STM32WL)
+#elif defined(ARCH_STM32WL) || defined(ARCH_STM32F4)
     HAL_NVIC_SystemReset();
 #else
     rebootAtMsec = -1;
@@ -809,7 +809,7 @@ void Power::shutdown()
 #endif
     }
 #endif
-#if !defined(ARCH_STM32WL)
+#if !(defined(ARCH_STM32WL) || defined(ARCH_STM32F4))
     playShutdownMelody();
 #endif
     nodeDB->saveToDisk();

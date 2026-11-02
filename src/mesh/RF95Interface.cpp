@@ -91,6 +91,11 @@ RF95Interface::RF95Interface(LockingArduinoHal *hal, RADIOLIB_PIN_TYPE cs, RADIO
 /** Some boards require GPIO control of tx vs rx paths */
 void RF95Interface::setTransmitEnable(bool txon)
 {
+#ifdef ARCH_STM32F4
+    digitalWrite(RF95_TXEN, LOW);
+    digitalWrite(RF95_RXEN, LOW);
+    delayMicroseconds(10);
+#endif
 #ifdef RF95_TXEN
     digitalWrite(RF95_TXEN, txon ? 1 : 0);
 #elif ARCH_PORTDUINO
@@ -188,7 +193,7 @@ bool RF95Interface::init()
 #endif
 
     if (res == RADIOLIB_ERR_NONE)
-        res = lora->setCRC(RADIOLIB_SX126X_LORA_CRC_ON);
+        res = lora->setCRC(true);
 
     if (res == RADIOLIB_ERR_NONE)
         startReceive(); // start receiving
@@ -277,6 +282,10 @@ void RF95Interface::setStandby()
     disableInterrupt();
     completeSending(); // If we were sending, not anymore
     RadioLibInterface::setStandby();
+#ifdef ARCH_STM32F4
+    digitalWrite(RF95_TXEN, LOW);
+    digitalWrite(RF95_RXEN, LOW);
+#endif
 }
 
 /** We override to turn on transmitter power as needed.
@@ -292,6 +301,9 @@ void RF95Interface::startReceive()
 {
     setTransmitEnable(false);
     setStandby();
+#ifdef ARCH_STM32F4
+    setTransmitEnable(false);
+#endif
     int err = lora->startReceive();
     if (err != RADIOLIB_ERR_NONE)
         LOG_ERROR("RF95 startReceive %s%d", radioLibErr, err);
@@ -310,6 +322,9 @@ bool RF95Interface::isChannelActive()
     int16_t result;
     setTransmitEnable(false);
     setStandby(); // needed for smooth transition
+#ifdef ARCH_STM32F4
+    setTransmitEnable(false);
+#endif
     result = lora->scanChannel();
 
     if (result == RADIOLIB_PREAMBLE_DETECTED) {

@@ -13,7 +13,7 @@
 #include <RNG.h>
 #include <SHA256.h>
 #if !(MESHTASTIC_EXCLUDE_PKI_KEYGEN)
-#if !defined(ARCH_STM32WL)
+#if !(defined(ARCH_STM32WL) || defined(ARCH_STM32F4))
 #define CryptRNG RNG
 #endif
 

@@ -107,6 +107,23 @@ bool fill(uint8_t *buffer, size_t length, bool useRadioEntropy)
     auto result = nRFCrypto.Random.generate(buffer, length);
     nRFCrypto.end();
     filled = result;
+#elif defined(ARCH_STM32F4)
+    static RNG_HandleTypeDef rng = {};
+    static bool ready = false;
+    if (!ready) {
+        __HAL_RCC_RNG_CLK_ENABLE();
+        rng.Instance = RNG;
+        if (HAL_RNG_Init(&rng) != HAL_OK) return false;
+        ready = true;
+    }
+    for (size_t offset = 0; offset < length;) {
+        uint32_t value;
+        if (HAL_RNG_GenerateRandomNumber(&rng, &value) != HAL_OK) return false;
+        size_t count = std::min(length - offset, sizeof(value));
+        memcpy(buffer + offset, &value, count);
+        offset += count;
+    }
+    filled = true;
 #elif defined(ARCH_ESP32)
     // ESP32 exposes a true RNG via esp_fill_random().
     esp_fill_random(buffer, length);

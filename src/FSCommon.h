@@ -14,7 +14,7 @@
 #define FILE_O_READ "r"
 #endif
 
-#if defined(ARCH_STM32WL)
+#if defined(ARCH_STM32WL) || defined(ARCH_STM32F4)
 // STM32WL
 #include "LittleFS.h"
 #define FSCom InternalFS

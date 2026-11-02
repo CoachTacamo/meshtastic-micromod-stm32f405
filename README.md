@@ -1,3 +1,7 @@
+> **Unofficial port: Meshtastic on the SparkFun MicroMod STM32 (STM32F405) with an SX1276 radio (e.g. EBYTE E19-915M30S).**
+> This branch is Meshtastic `v2.7.26.54e0d8d` plus an STM32F405 platform and the `micromod_stm32f405_sx1276` PlatformIO environment.
+> Build, flash and limitations: [variants/stm32f4/micromod/README.md](variants/stm32f4/micromod/README.md). Not supported by the Meshtastic project.
+
 <div align="center" markdown="1">
 
 <img src=".github/meshtastic_logo.png" alt="Meshtastic Logo" width="80"/>
